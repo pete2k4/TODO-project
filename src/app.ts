@@ -47,7 +47,36 @@ function autobind(_: any, _2: string, descriptor: PropertyDescriptor) {
     return adjDescriptor
 }
 
-class Task {
+class TaskList {
+    templateElement: HTMLTemplateElement
+    hostElement: HTMLDivElement
+    element: HTMLElement
+
+    constructor(private type: 'active' | 'finished') {
+        this.templateElement = document.getElementById('task-list')! as HTMLTemplateElement
+        this.hostElement = document.getElementById('app')! as HTMLDivElement
+
+        const importedNode = document.importNode(this.templateElement.content, true)
+
+        this.element = importedNode.firstElementChild as HTMLElement
+        this.element.id = `${this.type}-tasks`
+        this.attach()
+        this.renderContent()
+    }
+
+    private renderContent() {
+        const listId = `${this.type}-tasks-list`
+        this.element.querySelector('ul')!.id = listId
+        this.element.querySelector('h2')!.textContent = this.type.toUpperCase() + ' Tasls'
+
+    }
+
+    private attach() {
+        this.hostElement.insertAdjacentElement('beforeend', this.element)
+    }
+}
+
+class TaskInput {
     //atached elements
     templateElement: HTMLTemplateElement
     hostElement: HTMLDivElement
@@ -136,4 +165,7 @@ class Task {
 }
 
 
-const task = new Task()
+const task = new TaskInput()
+
+const activeTaskList = new TaskList('active')
+const finishedTaskList = new TaskList('finished')

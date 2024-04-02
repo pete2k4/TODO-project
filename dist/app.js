@@ -35,7 +35,27 @@ function autobind(_, _2, descriptor) {
     };
     return adjDescriptor;
 }
-class Task {
+class TaskList {
+    constructor(type) {
+        this.type = type;
+        this.templateElement = document.getElementById('task-list');
+        this.hostElement = document.getElementById('app');
+        const importedNode = document.importNode(this.templateElement.content, true);
+        this.element = importedNode.firstElementChild;
+        this.element.id = `${this.type}-tasks`;
+        this.attach();
+        this.renderContent();
+    }
+    renderContent() {
+        const listId = `${this.type}-tasks-list`;
+        this.element.querySelector('ul').id = listId;
+        this.element.querySelector('h2').textContent = this.type.toUpperCase() + ' Tasls';
+    }
+    attach() {
+        this.hostElement.insertAdjacentElement('beforeend', this.element);
+    }
+}
+class TaskInput {
     constructor() {
         this.templateElement = document.getElementById("task-input");
         this.hostElement = document.getElementById("app");
@@ -93,6 +113,8 @@ class Task {
 }
 __decorate([
     autobind
-], Task.prototype, "submitHandler", null);
-const task = new Task();
+], TaskInput.prototype, "submitHandler", null);
+const task = new TaskInput();
+const activeTaskList = new TaskList('active');
+const finishedTaskList = new TaskList('finished');
 //# sourceMappingURL=app.js.map
