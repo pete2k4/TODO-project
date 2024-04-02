@@ -111,7 +111,13 @@ class TaskList {
         this.element.id = `${this.type}-tasks`
 
         projectState.addListener((tasks: Task[]) => {
-            this.assignedTasks = tasks
+            const relevantTasks = tasks.filter( task => {
+                if (this.type === 'active') {
+                    return task.status === TaskStatus.Active
+                }
+                return task.status === TaskStatus.Finished
+            })
+            this.assignedTasks = relevantTasks
             this.renderTasks()
         })
 
@@ -121,6 +127,7 @@ class TaskList {
 
     renderTasks() {
         const listEl = document.getElementById(`${this.type}-tasks-list`) as HTMLLIElement
+        listEl.innerHTML = ''
         for (const taskItem of this.assignedTasks) {
             const listItem = document.createElement('li')
             listItem.textContent = taskItem.title
