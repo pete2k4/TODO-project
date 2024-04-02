@@ -1,3 +1,50 @@
+enum TaskStatus {
+    Active,
+    Finished
+}
+
+class Task {
+    constructor(
+        public id: string, 
+        public title:string, 
+        public description: string, 
+        public people: number, 
+        public status: TaskStatus) {
+    }
+}
+
+type Listener = (items: Task[]) => void
+
+class TaskState {
+    private listeners: Listener[] = []
+    private tasks: Task[] = []
+    private static instance: TaskState
+
+    private constructor(){}
+
+    static getInstance() {
+        if (this.instance) {
+            return this.instance
+        }
+        this.instance = new TaskState()
+        return this.instance
+    }
+
+    addListener(listenerFn: Listener) {
+        this.listeners.push(listenerFn)
+    }
+
+    addTask(title: string, description: string, deadline: number) {
+        const newTask = new Task(Math.random().toString(), title, description, deadline, TaskStatus.Active)
+        this.tasks.push(newTask)
+        for(const listenerFn of this.listeners) {
+            listenerFn(this.tasks.slice())
+        }
+    }
+}
+
+const projectState = TaskState.getInstance()
+
 type Validatable = {
     value: string | number
     required?: boolean
@@ -51,29 +98,45 @@ class TaskList {
     templateElement: HTMLTemplateElement
     hostElement: HTMLDivElement
     element: HTMLElement
+    assignedTasks: Task[]
 
     constructor(private type: 'active' | 'finished') {
         this.templateElement = document.getElementById('task-list')! as HTMLTemplateElement
         this.hostElement = document.getElementById('app')! as HTMLDivElement
+        this.assignedTasks = []
 
         const importedNode = document.importNode(this.templateElement.content, true)
 
         this.element = importedNode.firstElementChild as HTMLElement
         this.element.id = `${this.type}-tasks`
-        this.attach()
+
+        projectState.addListener((tasks: Task[]) => {
+            this.assignedTasks = tasks
+            this.renderTasks()
+        })
+
+        this.hostElement.insertAdjacentElement('beforeend', this.element)
         this.renderContent()
     }
+
+    renderTasks() {
+        const listEl = document.getElementById(`${this.type}-tasks-list`) as HTMLLIElement
+        for (const taskItem of this.assignedTasks) {
+            const listItem = document.createElement('li')
+            listItem.textContent = taskItem.title
+            listEl.appendChild(listItem)
+        }
+    }
+    
 
     private renderContent() {
         const listId = `${this.type}-tasks-list`
         this.element.querySelector('ul')!.id = listId
-        this.element.querySelector('h2')!.textContent = this.type.toUpperCase() + ' Tasls'
+        this.element.querySelector('h2')!.textContent = this.type.toUpperCase() + ' TASKS'
 
     }
 
-    private attach() {
-        this.hostElement.insertAdjacentElement('beforeend', this.element)
-    }
+    
 }
 
 class TaskInput {
@@ -154,6 +217,8 @@ class TaskInput {
         const userInput = this.gatherUserInput()
         if (Array.isArray(userInput)) {
             console.log(userInput)
+            const [enteredTitle, description, people] = userInput
+            projectState.addTask(enteredTitle, description, people)
             this.clearInputs()
         }
     }

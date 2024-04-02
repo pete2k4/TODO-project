@@ -5,6 +5,44 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
+var TaskStatus;
+(function (TaskStatus) {
+    TaskStatus[TaskStatus["Active"] = 0] = "Active";
+    TaskStatus[TaskStatus["Finished"] = 1] = "Finished";
+})(TaskStatus || (TaskStatus = {}));
+class Task {
+    constructor(id, title, description, people, status) {
+        this.id = id;
+        this.title = title;
+        this.description = description;
+        this.people = people;
+        this.status = status;
+    }
+}
+class TaskState {
+    constructor() {
+        this.listeners = [];
+        this.tasks = [];
+    }
+    static getInstance() {
+        if (this.instance) {
+            return this.instance;
+        }
+        this.instance = new TaskState();
+        return this.instance;
+    }
+    addListener(listenerFn) {
+        this.listeners.push(listenerFn);
+    }
+    addTask(title, description, deadline) {
+        const newTask = new Task(Math.random().toString(), title, description, deadline, TaskStatus.Active);
+        this.tasks.push(newTask);
+        for (const listenerFn of this.listeners) {
+            listenerFn(this.tasks.slice());
+        }
+    }
+}
+const projectState = TaskState.getInstance();
 function validate(validatableInput) {
     let isValid = true;
     if (validatableInput.required) {
@@ -40,19 +78,29 @@ class TaskList {
         this.type = type;
         this.templateElement = document.getElementById('task-list');
         this.hostElement = document.getElementById('app');
+        this.assignedTasks = [];
         const importedNode = document.importNode(this.templateElement.content, true);
         this.element = importedNode.firstElementChild;
         this.element.id = `${this.type}-tasks`;
-        this.attach();
+        projectState.addListener((tasks) => {
+            this.assignedTasks = tasks;
+            this.renderTasks();
+        });
+        this.hostElement.insertAdjacentElement('beforeend', this.element);
         this.renderContent();
+    }
+    renderTasks() {
+        const listEl = document.getElementById(`${this.type}-tasks-list`);
+        for (const taskItem of this.assignedTasks) {
+            const listItem = document.createElement('li');
+            listItem.textContent = taskItem.title;
+            listEl.appendChild(listItem);
+        }
     }
     renderContent() {
         const listId = `${this.type}-tasks-list`;
         this.element.querySelector('ul').id = listId;
-        this.element.querySelector('h2').textContent = this.type.toUpperCase() + ' Tasls';
-    }
-    attach() {
-        this.hostElement.insertAdjacentElement('beforeend', this.element);
+        this.element.querySelector('h2').textContent = this.type.toUpperCase() + ' TASKS';
     }
 }
 class TaskInput {
@@ -104,6 +152,8 @@ class TaskInput {
         const userInput = this.gatherUserInput();
         if (Array.isArray(userInput)) {
             console.log(userInput);
+            const [enteredTitle, description, people] = userInput;
+            projectState.addTask(enteredTitle, description, people);
             this.clearInputs();
         }
     }
