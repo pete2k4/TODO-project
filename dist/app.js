@@ -19,9 +19,17 @@ class Task {
         this.status = status;
     }
 }
-class TaskState {
+class State {
     constructor() {
         this.listeners = [];
+    }
+    addListener(listenerFn) {
+        this.listeners.push(listenerFn);
+    }
+}
+class TaskState extends State {
+    constructor() {
+        super();
         this.tasks = [];
     }
     static getInstance() {
@@ -30,9 +38,6 @@ class TaskState {
         }
         this.instance = new TaskState();
         return this.instance;
-    }
-    addListener(listenerFn) {
-        this.listeners.push(listenerFn);
     }
     addTask(title, description, deadline) {
         const newTask = new Task(Math.random().toString(), title, description, deadline, TaskStatus.Active);
@@ -73,34 +78,47 @@ function autobind(_, _2, descriptor) {
     };
     return adjDescriptor;
 }
-class TaskList {
-    constructor(type) {
-        this.type = type;
-        this.templateElement = document.getElementById('task-list');
-        this.hostElement = document.getElementById('app');
-        this.assignedTasks = [];
+class Component {
+    constructor(templateId, hostElementId, insertAtStart, newElementId) {
+        this.templateElement = document.getElementById(templateId);
+        this.hostElement = document.getElementById(hostElementId);
         const importedNode = document.importNode(this.templateElement.content, true);
         this.element = importedNode.firstElementChild;
-        this.element.id = `${this.type}-tasks`;
-        projectState.addListener((tasks) => {
-            const relevantTasks = tasks.filter(task => {
+        if (newElementId) {
+            this.element.id = newElementId;
+        }
+        this.attach(insertAtStart);
+    }
+    attach(insertAtBeginning) {
+        this.hostElement.insertAdjacentElement(insertAtBeginning ? 'afterbegin' : 'beforeend', this.element);
+    }
+}
+class TaskList extends Component {
+    constructor(type) {
+        super('task-list', 'app', false, `${type}-tasks`);
+        this.type = type;
+        this.assignedTasks = [];
+        this.configure();
+        this.renderContent();
+    }
+    configure() {
+        projectState.addListener((projects) => {
+            const relevantProjects = projects.filter(prj => {
                 if (this.type === 'active') {
-                    return task.status === TaskStatus.Active;
+                    return prj.status === TaskStatus.Active;
                 }
-                return task.status === TaskStatus.Finished;
+                return prj.status === TaskStatus.Finished;
             });
-            this.assignedTasks = relevantTasks;
+            this.assignedTasks = relevantProjects;
             this.renderTasks();
         });
-        this.hostElement.insertAdjacentElement('beforeend', this.element);
-        this.renderContent();
     }
     renderTasks() {
         const listEl = document.getElementById(`${this.type}-tasks-list`);
         listEl.innerHTML = '';
-        for (const taskItem of this.assignedTasks) {
+        for (const prjItem of this.assignedTasks) {
             const listItem = document.createElement('li');
-            listItem.textContent = taskItem.title;
+            listItem.textContent = prjItem.title;
             listEl.appendChild(listItem);
         }
     }
@@ -110,17 +128,15 @@ class TaskList {
         this.element.querySelector('h2').textContent = this.type.toUpperCase() + ' TASKS';
     }
 }
-class TaskInput {
+class TaskInput extends Component {
     constructor() {
-        this.templateElement = document.getElementById("task-input");
-        this.hostElement = document.getElementById("app");
-        const importedNode = document.importNode(this.templateElement.content, true);
-        this.element = importedNode.firstElementChild;
-        this.hostElement.insertAdjacentElement('afterbegin', this.element);
+        super('task-input', 'app', true, 'user-input');
         this.titleInputElement = this.element.querySelector('#title');
         this.descriptionInputElement = this.element.querySelector('#description');
         this.deadlineInputElement = this.element.querySelector('#deadline');
         this.configure();
+    }
+    renderContent() {
     }
     clearInputs() {
         this.titleInputElement.value = '';

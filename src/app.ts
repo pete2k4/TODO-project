@@ -13,14 +13,23 @@ class Task {
     }
 }
 
-type Listener = (items: Task[]) => void
+type Listener<T> = (items: T[]) => void
 
-class TaskState {
-    private listeners: Listener[] = []
+class State<T> {
+  protected listeners: Listener<T>[] = []
+
+  addListener(listenerFn: Listener<T>) {
+    this.listeners.push(listenerFn)
+  }
+}
+
+class TaskState extends State<Task> {
     private tasks: Task[] = []
     private static instance: TaskState
 
-    private constructor(){}
+    private constructor(){
+        super()
+    }
 
     static getInstance() {
         if (this.instance) {
@@ -28,10 +37,6 @@ class TaskState {
         }
         this.instance = new TaskState()
         return this.instance
-    }
-
-    addListener(listenerFn: Listener) {
-        this.listeners.push(listenerFn)
     }
 
     addTask(title: string, description: string, deadline: number) {
@@ -94,49 +99,86 @@ function autobind(_: any, _2: string, descriptor: PropertyDescriptor) {
     return adjDescriptor
 }
 
-class TaskList {
-    templateElement: HTMLTemplateElement
-    hostElement: HTMLDivElement
-    element: HTMLElement
+abstract class Component<T extends HTMLElement, U extends HTMLElement> {
+    templateElement: HTMLTemplateElement;
+    hostElement: T;
+    element: U;
+
+    constructor(
+      templateId: string,
+      hostElementId: string,
+      insertAtStart: boolean,
+      newElementId?: string
+    ) {
+      this.templateElement = document.getElementById(
+        templateId
+      )! as HTMLTemplateElement;
+      this.hostElement = document.getElementById(hostElementId)! as T;
+
+      const importedNode = document.importNode(
+        this.templateElement.content,
+        true
+      );
+      this.element = importedNode.firstElementChild as U;
+      if (newElementId) {
+        this.element.id = newElementId;
+      }
+
+      this.attach(insertAtStart);
+    }
+
+    private attach(insertAtBeginning: boolean) {
+      this.hostElement.insertAdjacentElement(
+        insertAtBeginning ? 'afterbegin' : 'beforeend',
+        this.element
+      );
+    }
+
+    abstract configure(): void;
+    abstract renderContent(): void;
+  }
+
+
+class TaskList extends Component<HTMLDivElement, HTMLElement>{
+
     assignedTasks: Task[]
 
     constructor(private type: 'active' | 'finished') {
-        this.templateElement = document.getElementById('task-list')! as HTMLTemplateElement
-        this.hostElement = document.getElementById('app')! as HTMLDivElement
-        this.assignedTasks = []
+        super('task-list', 'app', false, `${type}-tasks`)
+        this.assignedTasks = [];
 
-        const importedNode = document.importNode(this.templateElement.content, true)
+        this.configure();
+        this.renderContent();
+    }
 
-        this.element = importedNode.firstElementChild as HTMLElement
-        this.element.id = `${this.type}-tasks`
-
-        projectState.addListener((tasks: Task[]) => {
-            const relevantTasks = tasks.filter( task => {
+    configure() {
+        projectState.addListener((projects: Task[]) => {
+            const relevantProjects = projects.filter(prj => {
                 if (this.type === 'active') {
-                    return task.status === TaskStatus.Active
+                  return prj.status === TaskStatus.Active;
                 }
-                return task.status === TaskStatus.Finished
-            })
-            this.assignedTasks = relevantTasks
-            this.renderTasks()
-        })
-
-        this.hostElement.insertAdjacentElement('beforeend', this.element)
-        this.renderContent()
-    }
-
-    renderTasks() {
-        const listEl = document.getElementById(`${this.type}-tasks-list`) as HTMLLIElement
-        listEl.innerHTML = ''
-        for (const taskItem of this.assignedTasks) {
-            const listItem = document.createElement('li')
-            listItem.textContent = taskItem.title
-            listEl.appendChild(listItem)
-        }
-    }
+                return prj.status === TaskStatus.Finished;
+              });
+              this.assignedTasks = relevantProjects;
+              this.renderTasks();
+            });
+          }
     
 
-    private renderContent() {
+          private renderTasks() {
+            const listEl = document.getElementById(
+              `${this.type}-tasks-list`
+            )! as HTMLUListElement;
+            listEl.innerHTML = '';
+            for (const prjItem of this.assignedTasks) {
+              const listItem = document.createElement('li');
+              listItem.textContent = prjItem.title;
+              listEl.appendChild(listItem);
+            }
+          }
+    
+
+    renderContent() {
         const listId = `${this.type}-tasks-list`
         this.element.querySelector('ul')!.id = listId
         this.element.querySelector('h2')!.textContent = this.type.toUpperCase() + ' TASKS'
@@ -146,34 +188,24 @@ class TaskList {
     
 }
 
-class TaskInput {
-    //atached elements
-    templateElement: HTMLTemplateElement
-    hostElement: HTMLDivElement
-    element: HTMLFormElement //the form itself
-
+class TaskInput extends Component<HTMLDivElement, HTMLFormElement>{
     //input gotten from form
     titleInputElement: HTMLInputElement
     descriptionInputElement: HTMLInputElement
     deadlineInputElement: HTMLInputElement
 
     constructor() {
-        this.templateElement = document.getElementById("task-input")! as HTMLTemplateElement
-        this.hostElement = document.getElementById("app")! as HTMLDivElement
-
-        //copie templateElement (forma) ca dupa sa fie atasat la host (div app)
-        const importedNode = document.importNode(this.templateElement.content, true)
-        this.element = importedNode.firstElementChild as HTMLFormElement
-        //atasarea formei (element) la host (div app)
-        this.hostElement.insertAdjacentElement('afterbegin', this.element)
-        //this.element.id = 'user-input' (daca voi avea nevoie de id-uri)
-
+        super('task-input', 'app', true, 'user-input')
         //containing form inputs in Task class
         this.titleInputElement = this.element.querySelector('#title')! as HTMLInputElement
         this.descriptionInputElement = this.element.querySelector('#description')! as HTMLInputElement
         this.deadlineInputElement = this.element.querySelector('#deadline')! as HTMLInputElement
 
         this.configure()
+    }
+
+    renderContent(): void {
+        
     }
 
     private clearInputs() {
@@ -230,7 +262,7 @@ class TaskInput {
         }
     }
 
-    private configure() {
+    configure() {
         this.element.addEventListener('submit', this.submitHandler)
     }
 
