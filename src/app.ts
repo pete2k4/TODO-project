@@ -138,6 +138,31 @@ abstract class Component<T extends HTMLElement, U extends HTMLElement> {
     abstract renderContent(): void;
   }
 
+  //clasa pentru structurarea fiecarui task
+  class TaskItem extends Component<HTMLUListElement, HTMLLIElement> {
+    private task: Task;
+  
+    constructor(hostId: string, project: Task) {
+      super('single-task', hostId, false, project.id)
+      this.task = project
+  
+      this.configure()
+      this.renderContent()
+    }
+  
+    configure() {
+  
+    }
+  
+    renderContent() {
+      this.element.querySelector('h2')!.textContent = this.task.title
+      this.element.querySelector('h3')!.textContent = this.task.people.toString()
+      this.element.querySelector('p')!.textContent = this.task.description
+        
+  
+    }
+  }
+
 
 class TaskList extends Component<HTMLDivElement, HTMLElement>{
 
@@ -170,10 +195,8 @@ class TaskList extends Component<HTMLDivElement, HTMLElement>{
               `${this.type}-tasks-list`
             )! as HTMLUListElement;
             listEl.innerHTML = '';
-            for (const prjItem of this.assignedTasks) {
-              const listItem = document.createElement('li');
-              listItem.textContent = prjItem.title;
-              listEl.appendChild(listItem);
+            for (const taskItem of this.assignedTasks) {
+                new TaskItem(this.element.querySelector('ul')!.id, taskItem);
             }
           }
     

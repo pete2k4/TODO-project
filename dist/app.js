@@ -93,6 +93,21 @@ class Component {
         this.hostElement.insertAdjacentElement(insertAtBeginning ? 'afterbegin' : 'beforeend', this.element);
     }
 }
+class TaskItem extends Component {
+    constructor(hostId, project) {
+        super('single-task', hostId, false, project.id);
+        this.task = project;
+        this.configure();
+        this.renderContent();
+    }
+    configure() {
+    }
+    renderContent() {
+        this.element.querySelector('h2').textContent = this.task.title;
+        this.element.querySelector('h3').textContent = this.task.people.toString();
+        this.element.querySelector('p').textContent = this.task.description;
+    }
+}
 class TaskList extends Component {
     constructor(type) {
         super('task-list', 'app', false, `${type}-tasks`);
@@ -116,10 +131,8 @@ class TaskList extends Component {
     renderTasks() {
         const listEl = document.getElementById(`${this.type}-tasks-list`);
         listEl.innerHTML = '';
-        for (const prjItem of this.assignedTasks) {
-            const listItem = document.createElement('li');
-            listItem.textContent = prjItem.title;
-            listEl.appendChild(listItem);
+        for (const taskItem of this.assignedTasks) {
+            new TaskItem(this.element.querySelector('ul').id, taskItem);
         }
     }
     renderContent() {
