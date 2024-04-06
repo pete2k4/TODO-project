@@ -8,8 +8,10 @@ class Task {
         public id: string, 
         public title:string, 
         public description: string, 
-        public people: number, 
+        public deadline: number, 
         public status: TaskStatus) {
+        console.log('check task')
+
     }
 }
 
@@ -29,6 +31,8 @@ class TaskState extends State<Task> {
 
     private constructor(){
         super()
+        console.log('check taskstate')
+
     }
 
     static getInstance() {
@@ -62,6 +66,7 @@ type Validatable = {
 function validate(validatableInput: Validatable) {
     //true by default, until it unmeets any criteria
     let isValid = true
+    console.log('check validate')
 
     if (validatableInput.required) {
         isValid = isValid && validatableInput.value.toString().trim().length !== 0
@@ -110,6 +115,8 @@ abstract class Component<T extends HTMLElement, U extends HTMLElement> {
       insertAtStart: boolean,
       newElementId?: string
     ) {
+        console.log('check component')
+
       this.templateElement = document.getElementById(
         templateId
       )! as HTMLTemplateElement;
@@ -142,9 +149,11 @@ abstract class Component<T extends HTMLElement, U extends HTMLElement> {
   class TaskItem extends Component<HTMLUListElement, HTMLLIElement> {
     private task: Task;
   
-    constructor(hostId: string, project: Task) {
-      super('single-task', hostId, false, project.id)
-      this.task = project
+    constructor(hostId: string, task: Task) {
+      super('single-task', hostId, false, task.id)
+      console.log('check taskitem')
+
+      this.task = task
   
       this.configure()
       this.renderContent()
@@ -155,9 +164,9 @@ abstract class Component<T extends HTMLElement, U extends HTMLElement> {
     }
   
     renderContent() {
-      this.element.querySelector('h2')!.textContent = this.task.title
-      this.element.querySelector('h3')!.textContent = this.task.people.toString()
-      this.element.querySelector('p')!.textContent = this.task.description
+      this.element.querySelector('#title')!.textContent = this.task.title
+      this.element.querySelector('#description')!.textContent = this.task.description
+      this.element.querySelector('#deadline')!.textContent = this.task.deadline.toString()
         
   
     }
@@ -170,19 +179,22 @@ class TaskList extends Component<HTMLDivElement, HTMLElement>{
 
     constructor(private type: 'active' | 'finished') {
         super('task-list', 'app', false, `${type}-tasks`)
+        console.log('check tasklist')
+
         this.assignedTasks = [];
 
         this.configure();
         this.renderContent();
+        
     }
 
     configure() {
-        projectState.addListener((projects: Task[]) => {
-            const relevantProjects = projects.filter(prj => {
+        projectState.addListener((tasks: Task[]) => {
+            const relevantProjects = tasks.filter(task => {
                 if (this.type === 'active') {
-                  return prj.status === TaskStatus.Active;
+                  return task.status === TaskStatus.Active;
                 }
-                return prj.status === TaskStatus.Finished;
+                return task.status === TaskStatus.Finished;
               });
               this.assignedTasks = relevantProjects;
               this.renderTasks();
@@ -220,6 +232,7 @@ class TaskInput extends Component<HTMLDivElement, HTMLFormElement>{
     constructor() {
         super('task-input', 'app', true, 'user-input')
         //containing form inputs in Task class
+        console.log('check taskinput')
         this.titleInputElement = this.element.querySelector('#title')! as HTMLInputElement
         this.descriptionInputElement = this.element.querySelector('#description')! as HTMLInputElement
         this.deadlineInputElement = this.element.querySelector('#deadline')! as HTMLInputElement

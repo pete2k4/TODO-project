@@ -23,6 +23,12 @@ label {
   margin-bottom: 5px;
 }
 
+h2[for="checkbox"] {
+  display: inline;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
 input[type="text"],
 textarea {
   width: 100%;
@@ -43,7 +49,7 @@ input[type="number"] {
 /* Style for the title input */
 #title {
   width: 60%; /* Adjust the width as needed */
-  margin: 0 auto; /* Center the input */
+  margin: 0 ; /* Center the input */
 }
 
 button[type="submit"] {
@@ -58,4 +64,8 @@ button[type="submit"] {
 
 button[type="submit"]:hover {
   background-color: #0056b3;
+}
+
+#task-header {
+  margin-bottom: 5px
 }

@@ -6,10 +6,10 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <title>TODO</title>
     <link rel="stylesheet" href="app.css" />
-    <link rel="shortcut icon" href="#">
     <script src="dist/app.js" defer></script>
   </head>
   <body>
+
 
     <template id="task-input">
       <form>
@@ -22,31 +22,39 @@
           <textarea id="description" rows="3"></textarea>
         </div>
         <div class="form-control">
-          <label for="people">People</label>
+          <label for="deadline">Deadline</label>
           <input type="number" id="deadline" step="1" min="0" max="5" />
         </div>
-        <button type="submit">ADD PROJECT</button>
+        <button type="submit">ADD TASK</button>
       </form>
     </template>
 
 
-    <template id="single-task">
-      <li draggable="true">
-        <h2></h2>
-        <h3></h3>
-        <p></p>
+    <template id="single-task">  
+      <li>
+        <form>
+          
+          <input type="checkbox" id="checkbox">
+          <h2 for="checkbox" id="title"></h2>
+
+          <label id="description"></label>
+          <label id="deadline"></label>
+
+        </form>
       </li>
     </template>
-
     
+
     <template id="task-list">
       <section class="tasks">
-        <header>
+        <header id="task-header">
           <h2></h2>
         </header>
         <ul></ul>
       </section>
     </template>
+
+
     <div id="app"></div>
   </body>
 </html>
