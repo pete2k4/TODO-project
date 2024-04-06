@@ -50,9 +50,20 @@ class TaskState extends State<Task> {
             listenerFn(this.tasks.slice())
         }
     }
+
+    updateTaskStatus(taskId: string, newStatus: TaskStatus) {
+        const taskToUpdate = this.tasks.find(task => task.id === taskId);
+        if (taskToUpdate) {
+            taskToUpdate.status = newStatus;
+            for (const listenerFn of this.listeners) {
+                listenerFn(this.tasks.slice()); // Update listeners with the updated tasks array
+            }
+        }
+    }
+    
 }
 
-const projectState = TaskState.getInstance()
+const taskState = TaskState.getInstance()
 
 type Validatable = {
     value: string | number
@@ -160,16 +171,31 @@ abstract class Component<T extends HTMLElement, U extends HTMLElement> {
     }
   
     configure() {
-  
+        const checkbox = this.element.querySelector('#checkbox') as HTMLInputElement;
+        checkbox.addEventListener('change', this.checkboxChangeHandler);
+    }
+
+    @autobind
+    private checkboxChangeHandler(event: Event) {
+        const checkbox = event.target as HTMLInputElement;
+        if (checkbox.checked) {
+            taskState.updateTaskStatus(this.task.id, TaskStatus.Finished);
+        } else {
+            taskState.updateTaskStatus(this.task.id, TaskStatus.Active);
+        }
     }
   
     renderContent() {
       this.element.querySelector('#title')!.textContent = this.task.title
       this.element.querySelector('#description')!.textContent = this.task.description
       this.element.querySelector('#deadline')!.textContent = this.task.deadline.toString()
-        
+      
+      const checkbox = this.element.querySelector('#checkbox') as HTMLInputElement;
+      checkbox.checked = this.task.status === TaskStatus.Finished;
   
     }
+
+    
   }
 
 
@@ -179,27 +205,27 @@ class TaskList extends Component<HTMLDivElement, HTMLElement>{
 
     constructor(private type: 'active' | 'finished') {
         super('task-list', 'app', false, `${type}-tasks`)
-        console.log('check tasklist')
 
         this.assignedTasks = [];
-
         this.configure();
         this.renderContent();
         
     }
 
+    
+
     configure() {
-        projectState.addListener((tasks: Task[]) => {
+        taskState.addListener((tasks: Task[]) => {
             const relevantProjects = tasks.filter(task => {
                 if (this.type === 'active') {
-                  return task.status === TaskStatus.Active;
+                    return task.status === TaskStatus.Active;
                 }
                 return task.status === TaskStatus.Finished;
-              });
-              this.assignedTasks = relevantProjects;
-              this.renderTasks();
             });
-          }
+            this.assignedTasks = relevantProjects;
+            this.renderTasks();
+        });
+    }
     
 
           private renderTasks() {
@@ -293,7 +319,7 @@ class TaskInput extends Component<HTMLDivElement, HTMLFormElement>{
         if (Array.isArray(userInput)) {
             console.log(userInput)
             const [enteredTitle, description, people] = userInput
-            projectState.addTask(enteredTitle, description, people)
+            taskState.addTask(enteredTitle, description, people)
             this.clearInputs()
         }
     }

@@ -69,3 +69,8 @@ button[type="submit"]:hover {
 #task-header {
   margin-bottom: 5px
 }
+
+input:checked + h2 {
+  text-decoration: line-through;
+  text-decoration-thickness: 2.1px;
+}

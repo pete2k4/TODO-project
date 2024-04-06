@@ -48,8 +48,17 @@ class TaskState extends State {
             listenerFn(this.tasks.slice());
         }
     }
+    updateTaskStatus(taskId, newStatus) {
+        const taskToUpdate = this.tasks.find(task => task.id === taskId);
+        if (taskToUpdate) {
+            taskToUpdate.status = newStatus;
+            for (const listenerFn of this.listeners) {
+                listenerFn(this.tasks.slice());
+            }
+        }
+    }
 }
-const projectState = TaskState.getInstance();
+const taskState = TaskState.getInstance();
 function validate(validatableInput) {
     let isValid = true;
     console.log('check validate');
@@ -106,24 +115,39 @@ class TaskItem extends Component {
         this.renderContent();
     }
     configure() {
+        const checkbox = this.element.querySelector('#checkbox');
+        checkbox.addEventListener('change', this.checkboxChangeHandler);
+    }
+    checkboxChangeHandler(event) {
+        const checkbox = event.target;
+        if (checkbox.checked) {
+            taskState.updateTaskStatus(this.task.id, TaskStatus.Finished);
+        }
+        else {
+            taskState.updateTaskStatus(this.task.id, TaskStatus.Active);
+        }
     }
     renderContent() {
         this.element.querySelector('#title').textContent = this.task.title;
         this.element.querySelector('#description').textContent = this.task.description;
         this.element.querySelector('#deadline').textContent = this.task.deadline.toString();
+        const checkbox = this.element.querySelector('#checkbox');
+        checkbox.checked = this.task.status === TaskStatus.Finished;
     }
 }
+__decorate([
+    autobind
+], TaskItem.prototype, "checkboxChangeHandler", null);
 class TaskList extends Component {
     constructor(type) {
         super('task-list', 'app', false, `${type}-tasks`);
         this.type = type;
-        console.log('check tasklist');
         this.assignedTasks = [];
         this.configure();
         this.renderContent();
     }
     configure() {
-        projectState.addListener((tasks) => {
+        taskState.addListener((tasks) => {
             const relevantProjects = tasks.filter(task => {
                 if (this.type === 'active') {
                     return task.status === TaskStatus.Active;
@@ -196,7 +220,7 @@ class TaskInput extends Component {
         if (Array.isArray(userInput)) {
             console.log(userInput);
             const [enteredTitle, description, people] = userInput;
-            projectState.addTask(enteredTitle, description, people);
+            taskState.addTask(enteredTitle, description, people);
             this.clearInputs();
         }
     }
