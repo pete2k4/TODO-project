@@ -71,11 +71,10 @@ function validate(validatableInput) {
     if (validatableInput.maxLength != null && typeof validatableInput.value === 'string') {
         isValid = isValid && validatableInput.value.length < validatableInput.maxLength;
     }
-    if (validatableInput.min != null && typeof validatableInput.value === 'number') {
-        isValid = isValid && validatableInput.value >= validatableInput.min;
-    }
-    if (validatableInput.max != null && typeof validatableInput.value === 'number') {
-        isValid = isValid && validatableInput.value <= validatableInput.max;
+    if (validatableInput.minDate != null && typeof validatableInput.value === 'string') {
+        const inputDate = new Date(validatableInput.value);
+        const currentDate = new Date(validatableInput.minDate);
+        isValid = isValid && inputDate > currentDate;
     }
     return isValid;
 }
@@ -193,17 +192,17 @@ class TaskInput extends Component {
         const enteredDeadline = this.deadlineInputElement.value;
         const titleValidatable = {
             value: enteredTitle,
-            required: false,
+            required: true,
         };
         const descriptionValidatable = {
             value: enteredDescription,
-            required: true,
+            required: false,
             minLength: 2
         };
         const deadlineValidatable = {
             value: enteredDeadline,
-            required: true,
-            min: 1
+            required: false,
+            minDate: Date.now()
         };
         if (!validate(titleValidatable) ||
             !validate(descriptionValidatable) ||
@@ -211,7 +210,7 @@ class TaskInput extends Component {
             alert('Invalid data!');
         }
         else {
-            return [enteredTitle, enteredDescription, +enteredDeadline];
+            return [enteredTitle, enteredDescription, enteredDeadline];
         }
     }
     submitHandler(event) {
@@ -219,8 +218,8 @@ class TaskInput extends Component {
         const userInput = this.gatherUserInput();
         if (Array.isArray(userInput)) {
             console.log(userInput);
-            const [enteredTitle, description, people] = userInput;
-            taskState.addTask(enteredTitle, description, people);
+            const [enteredTitle, description, deadline] = userInput;
+            taskState.addTask(enteredTitle, description, deadline);
             this.clearInputs();
         }
     }

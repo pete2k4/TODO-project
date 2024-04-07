@@ -8,7 +8,7 @@ class Task {
         public id: string, 
         public title:string, 
         public description: string, 
-        public deadline: number, 
+        public deadline: string, 
         public status: TaskStatus) {
         console.log('check task')
 
@@ -43,7 +43,7 @@ class TaskState extends State<Task> {
         return this.instance
     }
 
-    addTask(title: string, description: string, deadline: number) {
+    addTask(title: string, description: string, deadline: string) {
         const newTask = new Task(Math.random().toString(), title, description, deadline, TaskStatus.Active)
         this.tasks.push(newTask)
         for(const listenerFn of this.listeners) {
@@ -70,8 +70,8 @@ type Validatable = {
     required?: boolean
     minLength?: number
     maxLength?: number
-    min?: number
-    max?: number
+    minDate?: number
+    
 }
 
 function validate(validatableInput: Validatable) {
@@ -91,13 +91,13 @@ function validate(validatableInput: Validatable) {
         isValid = isValid && validatableInput.value.length < validatableInput.maxLength
     }
 
-    if (validatableInput.min != null && typeof validatableInput.value === 'number'){
-        isValid = isValid && validatableInput.value >= validatableInput.min
+    if (validatableInput.minDate != null && typeof validatableInput.value === 'string'){
+        const inputDate = new Date(validatableInput.value) 
+        const currentDate = new Date(validatableInput.minDate)
+        isValid = isValid &&  inputDate > currentDate
     }
 
-    if (validatableInput.max != null && typeof validatableInput.value === 'number'){
-        isValid = isValid && validatableInput.value <= validatableInput.max
-    }
+    
 
     return isValid
 }
@@ -276,26 +276,26 @@ class TaskInput extends Component<HTMLDivElement, HTMLFormElement>{
         this.deadlineInputElement.value = ''
     }
     //ori returneaza touple ori nimic in caz de nu e validat
-    private gatherUserInput(): [string, string, number] | void {
+    private gatherUserInput(): [string, string, string] | void {
         const enteredTitle = this.titleInputElement.value
         const enteredDescription = this.descriptionInputElement.value
         const enteredDeadline = this.deadlineInputElement.value
 
         const titleValidatable: Validatable = {
             value: enteredTitle,
-            required: false,
+            required: true,
         }
 
         const descriptionValidatable: Validatable = {
             value: enteredDescription,
-            required: true,
+            required: false,
             minLength: 2
         }
 
         const deadlineValidatable: Validatable = {
             value: enteredDeadline,
-            required: true,
-            min: 1
+            required: false,
+            minDate: Date.now()
         }
 
         if ( 
@@ -307,7 +307,7 @@ class TaskInput extends Component<HTMLDivElement, HTMLFormElement>{
             alert('Invalid data!')
         }
         else {
-            return [enteredTitle, enteredDescription, +enteredDeadline]
+            return [enteredTitle, enteredDescription, enteredDeadline]
         }
 
     }
@@ -318,8 +318,8 @@ class TaskInput extends Component<HTMLDivElement, HTMLFormElement>{
         const userInput = this.gatherUserInput()
         if (Array.isArray(userInput)) {
             console.log(userInput)
-            const [enteredTitle, description, people] = userInput
-            taskState.addTask(enteredTitle, description, people)
+            const [enteredTitle, description, deadline] = userInput
+            taskState.addTask(enteredTitle, description, deadline)
             this.clearInputs()
         }
     }
