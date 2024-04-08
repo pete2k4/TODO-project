@@ -74,3 +74,16 @@ input:checked + h2 {
   text-decoration: line-through;
   text-decoration-thickness: 2.1px;
 }
+
+li {
+  background-color: #ffffff; /* White background */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Little shadow */
+  padding: 15px; /* Adjust padding as needed */
+  margin-bottom: 10px; /* Space between list items */
+  border-radius: 8px; /* Rounded corners */
+  transition: background-color 0.3s ease; /* Smooth transition for background color */
+}
+
+li:hover {
+  background-color: #f0f0f0; /* Slight shading on hover */
+}

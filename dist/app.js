@@ -129,7 +129,7 @@ class TaskItem extends Component {
     renderContent() {
         this.element.querySelector('#title').textContent = this.task.title;
         this.element.querySelector('#description').textContent = this.task.description;
-        this.element.querySelector('#deadline').textContent = this.task.deadline.toString();
+        this.element.querySelector('#deadline').textContent = "Must be done until: " + new Date(this.task.deadline);
         const checkbox = this.element.querySelector('#checkbox');
         checkbox.checked = this.task.status === TaskStatus.Finished;
     }
