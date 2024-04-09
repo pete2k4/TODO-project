@@ -116,6 +116,11 @@ class TaskItem extends Component {
     configure() {
         const checkbox = this.element.querySelector('#checkbox');
         checkbox.addEventListener('change', this.checkboxChangeHandler);
+        const editBtn = this.element.querySelector('#edit');
+        editBtn.addEventListener('click', this.editClickHandler);
+    }
+    editClickHandler() {
+        const taskEdit = new TaskEdit(this.task);
     }
     checkboxChangeHandler(event) {
         const checkbox = event.target;
@@ -134,6 +139,9 @@ class TaskItem extends Component {
         checkbox.checked = this.task.status === TaskStatus.Finished;
     }
 }
+__decorate([
+    autobind
+], TaskItem.prototype, "editClickHandler", null);
 __decorate([
     autobind
 ], TaskItem.prototype, "checkboxChangeHandler", null);
@@ -215,6 +223,7 @@ class TaskInput extends Component {
     }
     submitHandler(event) {
         event.preventDefault();
+        console.log('teeeeest');
         const userInput = this.gatherUserInput();
         if (Array.isArray(userInput)) {
             console.log(userInput);
@@ -230,6 +239,25 @@ class TaskInput extends Component {
 __decorate([
     autobind
 ], TaskInput.prototype, "submitHandler", null);
+class TaskEdit extends Component {
+    constructor(task) {
+        super('edit-task', 'task-list', false);
+        console.log('taskedit');
+        this.task = task;
+        this.configure();
+    }
+    editHandler(event) {
+        event.preventDefault();
+    }
+    configure() {
+        console.log(task);
+    }
+    renderContent() {
+    }
+}
+__decorate([
+    autobind
+], TaskEdit.prototype, "editHandler", null);
 const task = new TaskInput();
 const activeTaskList = new TaskList('active');
 const finishedTaskList = new TaskList('finished');

@@ -60,7 +60,6 @@ class TaskState extends State<Task> {
             }
         }
     }
-    
 }
 
 const taskState = TaskState.getInstance()
@@ -173,6 +172,16 @@ abstract class Component<T extends HTMLElement, U extends HTMLElement> {
     configure() {
         const checkbox = this.element.querySelector('#checkbox') as HTMLInputElement;
         checkbox.addEventListener('change', this.checkboxChangeHandler);
+
+        const editBtn = this.element.querySelector('#edit') as HTMLButtonElement;
+        editBtn.addEventListener('click', this.editClickHandler);
+        
+    }
+
+    @autobind
+    private editClickHandler() {
+        const taskEdit = new TaskEdit(this.task);
+        
     }
 
     @autobind
@@ -184,6 +193,8 @@ abstract class Component<T extends HTMLElement, U extends HTMLElement> {
             taskState.updateTaskStatus(this.task.id, TaskStatus.Active);
         }
     }
+
+    
   
     renderContent() {
       this.element.querySelector('#title')!.textContent = this.task.title
@@ -194,6 +205,8 @@ abstract class Component<T extends HTMLElement, U extends HTMLElement> {
       checkbox.checked = this.task.status === TaskStatus.Finished;
   
     }
+
+
 
     
   }
@@ -276,7 +289,7 @@ class TaskInput extends Component<HTMLDivElement, HTMLFormElement>{
         this.deadlineInputElement.value = ''
     }
     //ori returneaza touple ori nimic in caz de nu e validat
-    private gatherUserInput(): [string, string, string] | void {
+    public gatherUserInput(): [string, string, string] | void {
         const enteredTitle = this.titleInputElement.value
         const enteredDescription = this.descriptionInputElement.value
         const enteredDeadline = this.deadlineInputElement.value
@@ -315,6 +328,7 @@ class TaskInput extends Component<HTMLDivElement, HTMLFormElement>{
     @autobind
     private submitHandler(event: Event) {
         event.preventDefault()//previne reload-ul la pagina
+        console.log('teeeeest')
         const userInput = this.gatherUserInput()
         if (Array.isArray(userInput)) {
             console.log(userInput)
@@ -329,6 +343,30 @@ class TaskInput extends Component<HTMLDivElement, HTMLFormElement>{
     }
 
 }
+
+class TaskEdit extends Component<HTMLDListElement, HTMLFormElement> {
+    private task: Task;
+
+    constructor(task: Task) {
+        super('edit-task', 'task-list', false);
+        console.log('taskedit');
+        this.task = task;
+        this.configure();
+    }
+
+    @autobind
+    private editHandler(event: Event) {
+        event.preventDefault(); // Prevent default form submission behavior
+    }
+
+    configure() {
+        console.log(task)
+    }
+
+    renderContent() {
+    }
+}
+
 
 
 const task = new TaskInput()

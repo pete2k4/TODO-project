@@ -87,3 +87,8 @@ li {
 li:hover {
   background-color: #f0f0f0; /* Slight shading on hover */
 }
+
+ul {
+  list-style-type: none; /* Removes bullet points */
+}
+
