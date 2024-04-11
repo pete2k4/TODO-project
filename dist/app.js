@@ -241,10 +241,14 @@ __decorate([
 ], TaskInput.prototype, "submitHandler", null);
 class TaskEdit extends Component {
     constructor(task) {
-        super('edit-task', 'task-list', false);
+        super('edit-task', 'app', false);
+        this.modal = document.getElementById('edit-modal');
+        this.backdrop = document.getElementById('backdrop');
+        this.cancel = document.getElementById('cancel');
         console.log('taskedit');
         this.task = task;
         this.configure();
+        this.renderContent();
     }
     editHandler(event) {
         event.preventDefault();
@@ -253,11 +257,43 @@ class TaskEdit extends Component {
         console.log(task);
     }
     renderContent() {
+        this.showModal();
+        this.cancelBtn();
+        this.outsideClick();
+    }
+    toggleBackdrop() {
+        this.backdrop.classList.toggle('visible');
+    }
+    showModal() {
+        if (!this.modal.classList.contains('visible')) {
+            this.modal.classList.add('visible');
+            this.toggleBackdrop();
+        }
+    }
+    closeModal() {
+        if (this.modal.classList.contains('visible')) {
+            this.modal.classList.remove('visible');
+            this.toggleBackdrop();
+        }
+    }
+    cancelBtn() {
+        this.cancel.addEventListener('click', this.closeModal);
+    }
+    outsideClick() {
     }
 }
 __decorate([
     autobind
 ], TaskEdit.prototype, "editHandler", null);
+__decorate([
+    autobind
+], TaskEdit.prototype, "toggleBackdrop", null);
+__decorate([
+    autobind
+], TaskEdit.prototype, "closeModal", null);
+__decorate([
+    autobind
+], TaskEdit.prototype, "outsideClick", null);
 const task = new TaskInput();
 const activeTaskList = new TaskList('active');
 const finishedTaskList = new TaskList('finished');

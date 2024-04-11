@@ -181,7 +181,7 @@ abstract class Component<T extends HTMLElement, U extends HTMLElement> {
     @autobind
     private editClickHandler() {
         const taskEdit = new TaskEdit(this.task);
-        
+
     }
 
     @autobind
@@ -346,16 +346,21 @@ class TaskInput extends Component<HTMLDivElement, HTMLFormElement>{
 
 class TaskEdit extends Component<HTMLDListElement, HTMLFormElement> {
     private task: Task;
+    modal = document.getElementById('edit-modal') as HTMLElement
+    backdrop = document.getElementById('backdrop') as HTMLElement
+    cancel = document.getElementById('cancel')
 
     constructor(task: Task) {
-        super('edit-task', 'task-list', false);
+        super('edit-task', 'app', false);
         console.log('taskedit');
         this.task = task;
         this.configure();
+        this.renderContent();
     }
 
     @autobind
     private editHandler(event: Event) {
+        //data processing
         event.preventDefault(); // Prevent default form submission behavior
     }
 
@@ -364,7 +369,43 @@ class TaskEdit extends Component<HTMLDListElement, HTMLFormElement> {
     }
 
     renderContent() {
+        this.showModal()
+        this.cancelBtn()
+        this.outsideClick()
     }
+
+    
+    @autobind
+    private toggleBackdrop() {
+        this.backdrop!.classList.toggle('visible')
+        
+    }
+
+    private showModal() {
+        //messy implementation
+        if (!this.modal.classList.contains('visible')) {
+            this.modal.classList.add('visible')
+            this.toggleBackdrop()
+        }
+    }
+
+    @autobind
+    private closeModal() {
+        //messy implementation
+        if (this.modal.classList.contains('visible')) {
+            this.modal.classList.remove('visible')
+            this.toggleBackdrop()
+        }
+    }
+
+    private cancelBtn() {
+        this.cancel!.addEventListener('click', this.closeModal)
+    }
+
+    @autobind
+    private outsideClick() {
+    }
+
 }
 
 
