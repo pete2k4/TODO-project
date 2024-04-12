@@ -121,6 +121,7 @@ class TaskItem extends Component {
     }
     editClickHandler() {
         const taskEdit = new TaskEdit(this.task);
+        console.log('created task edit instance');
     }
     checkboxChangeHandler(event) {
         const checkbox = event.target;
@@ -242,11 +243,9 @@ __decorate([
 class TaskEdit extends Component {
     constructor(task) {
         super('edit-task', 'app', false);
+        this.task = task;
         this.modal = document.getElementById('edit-modal');
         this.backdrop = document.getElementById('backdrop');
-        this.cancel = document.getElementById('cancel');
-        console.log('taskedit');
-        this.task = task;
         this.configure();
         this.renderContent();
     }
@@ -259,7 +258,6 @@ class TaskEdit extends Component {
     renderContent() {
         this.showModal();
         this.cancelBtn();
-        this.outsideClick();
     }
     toggleBackdrop() {
         this.backdrop.classList.toggle('visible');
@@ -269,6 +267,7 @@ class TaskEdit extends Component {
             this.modal.classList.add('visible');
             this.toggleBackdrop();
         }
+        this.outsideClick();
     }
     closeModal() {
         if (this.modal.classList.contains('visible')) {
@@ -277,9 +276,11 @@ class TaskEdit extends Component {
         }
     }
     cancelBtn() {
-        this.cancel.addEventListener('click', this.closeModal);
+        const cancel = document.getElementById('cancel');
+        cancel.addEventListener('click', this.closeModal);
     }
     outsideClick() {
+        this.backdrop.addEventListener('click', this.closeModal);
     }
 }
 __decorate([

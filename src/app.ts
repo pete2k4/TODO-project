@@ -181,6 +181,7 @@ abstract class Component<T extends HTMLElement, U extends HTMLElement> {
     @autobind
     private editClickHandler() {
         const taskEdit = new TaskEdit(this.task);
+        console.log('created task edit instance')
 
     }
 
@@ -346,14 +347,15 @@ class TaskInput extends Component<HTMLDivElement, HTMLFormElement>{
 
 class TaskEdit extends Component<HTMLDListElement, HTMLFormElement> {
     private task: Task;
-    modal = document.getElementById('edit-modal') as HTMLElement
-    backdrop = document.getElementById('backdrop') as HTMLElement
-    cancel = document.getElementById('cancel')
+    private modal: HTMLDivElement;
+    private backdrop: HTMLDivElement;
+
 
     constructor(task: Task) {
         super('edit-task', 'app', false);
-        console.log('taskedit');
         this.task = task;
+        this.modal = document.getElementById('edit-modal') as HTMLDivElement;
+        this.backdrop = document.getElementById('backdrop') as HTMLDivElement;
         this.configure();
         this.renderContent();
     }
@@ -371,7 +373,6 @@ class TaskEdit extends Component<HTMLDListElement, HTMLFormElement> {
     renderContent() {
         this.showModal()
         this.cancelBtn()
-        this.outsideClick()
     }
 
     
@@ -387,6 +388,7 @@ class TaskEdit extends Component<HTMLDListElement, HTMLFormElement> {
             this.modal.classList.add('visible')
             this.toggleBackdrop()
         }
+        this.outsideClick()
     }
 
     @autobind
@@ -399,11 +401,14 @@ class TaskEdit extends Component<HTMLDListElement, HTMLFormElement> {
     }
 
     private cancelBtn() {
-        this.cancel!.addEventListener('click', this.closeModal)
+        const cancel = document.getElementById('cancel')
+        cancel!.addEventListener('click', this.closeModal)
     }
 
     @autobind
     private outsideClick() {
+        this.backdrop.addEventListener('click', this.closeModal)
+
     }
 
 }
