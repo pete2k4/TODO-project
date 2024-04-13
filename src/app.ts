@@ -10,7 +10,6 @@ class Task {
         public description: string, 
         public deadline: string, 
         public status: TaskStatus) {
-        console.log('check task')
 
     }
 }
@@ -31,7 +30,6 @@ class TaskState extends State<Task> {
 
     private constructor(){
         super()
-        console.log('check taskstate')
 
     }
 
@@ -76,7 +74,6 @@ type Validatable = {
 function validate(validatableInput: Validatable) {
     //true by default, until it unmeets any criteria
     let isValid = true
-    console.log('check validate')
 
     if (validatableInput.required) {
         isValid = isValid && validatableInput.value.toString().trim().length !== 0
@@ -125,7 +122,6 @@ abstract class Component<T extends HTMLElement, U extends HTMLElement> {
       insertAtStart: boolean,
       newElementId?: string
     ) {
-        console.log('check component')
 
       this.templateElement = document.getElementById(
         templateId
@@ -158,10 +154,10 @@ abstract class Component<T extends HTMLElement, U extends HTMLElement> {
   //clasa pentru structurarea fiecarui task
   class TaskItem extends Component<HTMLUListElement, HTMLLIElement> {
     private task: Task;
+    private taskEdit: TaskEdit | null = null
   
     constructor(hostId: string, task: Task) {
       super('single-task', hostId, false, task.id)
-      console.log('check taskitem')
 
       this.task = task
   
@@ -180,8 +176,13 @@ abstract class Component<T extends HTMLElement, U extends HTMLElement> {
 
     @autobind
     private editClickHandler() {
-        const taskEdit = new TaskEdit(this.task);
-        console.log('created task edit instance')
+        if (!this.taskEdit) {
+            // If not, create a new TaskEdit instance
+            this.taskEdit = new TaskEdit(this.task);
+        } else {
+            // If it already exists, just toggle its visibility
+            this.taskEdit.toggleModal()
+        }
 
     }
 
@@ -272,7 +273,6 @@ class TaskInput extends Component<HTMLDivElement, HTMLFormElement>{
     constructor() {
         super('task-input', 'app', true, 'user-input')
         //containing form inputs in Task class
-        console.log('check taskinput')
         this.titleInputElement = this.element.querySelector('#title')! as HTMLInputElement
         this.descriptionInputElement = this.element.querySelector('#description')! as HTMLInputElement
         this.deadlineInputElement = this.element.querySelector('#deadline')! as HTMLInputElement
@@ -329,10 +329,8 @@ class TaskInput extends Component<HTMLDivElement, HTMLFormElement>{
     @autobind
     private submitHandler(event: Event) {
         event.preventDefault()//previne reload-ul la pagina
-        console.log('teeeeest')
         const userInput = this.gatherUserInput()
         if (Array.isArray(userInput)) {
-            console.log(userInput)
             const [enteredTitle, description, deadline] = userInput
             taskState.addTask(enteredTitle, description, deadline)
             this.clearInputs()
@@ -345,40 +343,51 @@ class TaskInput extends Component<HTMLDivElement, HTMLFormElement>{
 
 }
 
-class TaskEdit extends Component<HTMLDListElement, HTMLFormElement> {
+class TaskEdit {
     private task: Task;
     private modal: HTMLDivElement;
     private backdrop: HTMLDivElement;
+    titleEditInputElement: HTMLInputElement
+    descriptionEditInputElement: HTMLInputElement
+    deadlineEditInputElement: HTMLInputElement
 
 
     constructor(task: Task) {
-        super('edit-task', 'app', false);
+        //super('edit-task', 'app', false);
         this.task = task;
         this.modal = document.getElementById('edit-modal') as HTMLDivElement;
         this.backdrop = document.getElementById('backdrop') as HTMLDivElement;
+        
+        this.titleEditInputElement = document.getElementById('titleEdit') as HTMLInputElement
+        this.descriptionEditInputElement = document.getElementById('descriptionEdit') as HTMLInputElement
+        this.deadlineEditInputElement = document.getElementById('deadlineEdit') as HTMLInputElement
+
+        console.log('new task edit instance')
         this.configure();
         this.renderContent();
-    }
-
-    @autobind
-    private editHandler(event: Event) {
-        //data processing
-        event.preventDefault(); // Prevent default form submission behavior
+    
     }
 
     configure() {
-        console.log(task)
+        this.toggleModal()
+        this.cancelBtn()
+        this.outsideClick()
+        this.modal.addEventListener('submit', this.editHandler)
     }
 
-    renderContent() {
-        this.showModal()
-        this.cancelBtn()
-    }
+    renderContent() {}
 
     
     @autobind
     private toggleBackdrop() {
         this.backdrop!.classList.toggle('visible')
+        
+    }
+
+    @autobind
+    public toggleModal() {
+        this.modal.classList.toggle('visible');
+        this.toggleBackdrop();
         
     }
 
@@ -388,11 +397,20 @@ class TaskEdit extends Component<HTMLDListElement, HTMLFormElement> {
             this.modal.classList.add('visible')
             this.toggleBackdrop()
         }
-        this.outsideClick()
+        //this.outsideClick()
+    }
+
+    
+
+    @autobind
+    private editHandler(event: Event) {
+        //data processing
+        event.preventDefault(); // Prevent default form submission behavior
+        
     }
 
     @autobind
-    private closeModal() {
+    public closeModal() {
         //messy implementation
         if (this.modal.classList.contains('visible')) {
             this.modal.classList.remove('visible')
@@ -401,13 +419,13 @@ class TaskEdit extends Component<HTMLDListElement, HTMLFormElement> {
     }
 
     private cancelBtn() {
-        const cancel = document.getElementById('cancel')
-        cancel!.addEventListener('click', this.closeModal)
+        const cancel = document.getElementById('cancel-edit')
+        cancel!.addEventListener('click', this.toggleModal)
     }
 
     @autobind
     private outsideClick() {
-        this.backdrop.addEventListener('click', this.closeModal)
+        this.backdrop.addEventListener('click', this.toggleModal)
 
     }
 

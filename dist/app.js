@@ -17,7 +17,6 @@ class Task {
         this.description = description;
         this.deadline = deadline;
         this.status = status;
-        console.log('check task');
     }
 }
 class State {
@@ -32,7 +31,6 @@ class TaskState extends State {
     constructor() {
         super();
         this.tasks = [];
-        console.log('check taskstate');
     }
     static getInstance() {
         if (this.instance) {
@@ -61,7 +59,6 @@ class TaskState extends State {
 const taskState = TaskState.getInstance();
 function validate(validatableInput) {
     let isValid = true;
-    console.log('check validate');
     if (validatableInput.required) {
         isValid = isValid && validatableInput.value.toString().trim().length !== 0;
     }
@@ -91,7 +88,6 @@ function autobind(_, _2, descriptor) {
 }
 class Component {
     constructor(templateId, hostElementId, insertAtStart, newElementId) {
-        console.log('check component');
         this.templateElement = document.getElementById(templateId);
         this.hostElement = document.getElementById(hostElementId);
         const importedNode = document.importNode(this.templateElement.content, true);
@@ -108,7 +104,7 @@ class Component {
 class TaskItem extends Component {
     constructor(hostId, task) {
         super('single-task', hostId, false, task.id);
-        console.log('check taskitem');
+        this.taskEdit = null;
         this.task = task;
         this.configure();
         this.renderContent();
@@ -120,8 +116,12 @@ class TaskItem extends Component {
         editBtn.addEventListener('click', this.editClickHandler);
     }
     editClickHandler() {
-        const taskEdit = new TaskEdit(this.task);
-        console.log('created task edit instance');
+        if (!this.taskEdit) {
+            this.taskEdit = new TaskEdit(this.task);
+        }
+        else {
+            this.taskEdit.toggleModal();
+        }
     }
     checkboxChangeHandler(event) {
         const checkbox = event.target;
@@ -182,7 +182,6 @@ class TaskList extends Component {
 class TaskInput extends Component {
     constructor() {
         super('task-input', 'app', true, 'user-input');
-        console.log('check taskinput');
         this.titleInputElement = this.element.querySelector('#title');
         this.descriptionInputElement = this.element.querySelector('#description');
         this.deadlineInputElement = this.element.querySelector('#deadline');
@@ -224,10 +223,8 @@ class TaskInput extends Component {
     }
     submitHandler(event) {
         event.preventDefault();
-        console.log('teeeeest');
         const userInput = this.gatherUserInput();
         if (Array.isArray(userInput)) {
-            console.log(userInput);
             const [enteredTitle, description, deadline] = userInput;
             taskState.addTask(enteredTitle, description, deadline);
             this.clearInputs();
@@ -240,34 +237,40 @@ class TaskInput extends Component {
 __decorate([
     autobind
 ], TaskInput.prototype, "submitHandler", null);
-class TaskEdit extends Component {
+class TaskEdit {
     constructor(task) {
-        super('edit-task', 'app', false);
         this.task = task;
         this.modal = document.getElementById('edit-modal');
         this.backdrop = document.getElementById('backdrop');
+        this.titleEditInputElement = document.getElementById('titleEdit');
+        this.descriptionEditInputElement = document.getElementById('descriptionEdit');
+        this.deadlineEditInputElement = document.getElementById('deadlineEdit');
+        console.log('new task edit instance');
         this.configure();
         this.renderContent();
     }
-    editHandler(event) {
-        event.preventDefault();
-    }
     configure() {
-        console.log(task);
-    }
-    renderContent() {
-        this.showModal();
+        this.toggleModal();
         this.cancelBtn();
+        this.outsideClick();
+        this.modal.addEventListener('submit', this.editHandler);
     }
+    renderContent() { }
     toggleBackdrop() {
         this.backdrop.classList.toggle('visible');
+    }
+    toggleModal() {
+        this.modal.classList.toggle('visible');
+        this.toggleBackdrop();
     }
     showModal() {
         if (!this.modal.classList.contains('visible')) {
             this.modal.classList.add('visible');
             this.toggleBackdrop();
         }
-        this.outsideClick();
+    }
+    editHandler(event) {
+        event.preventDefault();
     }
     closeModal() {
         if (this.modal.classList.contains('visible')) {
@@ -276,19 +279,22 @@ class TaskEdit extends Component {
         }
     }
     cancelBtn() {
-        const cancel = document.getElementById('cancel');
-        cancel.addEventListener('click', this.closeModal);
+        const cancel = document.getElementById('cancel-edit');
+        cancel.addEventListener('click', this.toggleModal);
     }
     outsideClick() {
-        this.backdrop.addEventListener('click', this.closeModal);
+        this.backdrop.addEventListener('click', this.toggleModal);
     }
 }
 __decorate([
     autobind
-], TaskEdit.prototype, "editHandler", null);
+], TaskEdit.prototype, "toggleBackdrop", null);
 __decorate([
     autobind
-], TaskEdit.prototype, "toggleBackdrop", null);
+], TaskEdit.prototype, "toggleModal", null);
+__decorate([
+    autobind
+], TaskEdit.prototype, "editHandler", null);
 __decorate([
     autobind
 ], TaskEdit.prototype, "closeModal", null);

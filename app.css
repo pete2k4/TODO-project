@@ -129,7 +129,7 @@ ul {
   justify-content: flex-end;
 }
 
-#cancel, #confirm {
+.cancel, .confirm {
   padding: 10px 20px;
   border: none;
   border-radius: 5px;
@@ -138,13 +138,13 @@ ul {
   text-align: center;
 }
 
-#cancel {
+.cancel {
   background-color: #dc3545; /* Red color for cancel button */
   color: #fff; /* White text color */
   margin-right: 10px; /* Add margin to separate buttons */
 }
 
-#confirm {
+.confirm {
   background-color: #007bff; /* Blue color for confirm button */
   color: #fff; /* White text color */
 }
