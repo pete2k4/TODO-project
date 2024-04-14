@@ -49,6 +49,21 @@ class TaskState extends State<Task> {
         }
     }
 
+    updateTask(id: string, title: string, description: string, deadline: string) {
+        const newTitle = title
+        const newDescription = description
+        const newDeadline = deadline
+
+        const task = this.tasks.find(task => task.id === id)
+        task!.title = newTitle
+        task!.description = newDescription
+        task!.deadline = newDeadline
+
+        for(const listenerFn of this.listeners) {
+            listenerFn(this.tasks.slice())
+        }
+    }
+
     updateTaskStatus(taskId: string, newStatus: TaskStatus) {
         const taskToUpdate = this.tasks.find(task => task.id === taskId);
         if (taskToUpdate) {
@@ -353,23 +368,27 @@ class TaskEdit extends Component<HTMLDListElement, HTMLFormElement> {    private
         this.backdrop = document.getElementById('backdrop') as HTMLDivElement;
         
         this.titleInputElement = document.getElementById('titleEdit') as HTMLInputElement
+        this.titleInputElement.value = this.task.title
         this.descriptionInputElement = document.getElementById('descriptionEdit') as HTMLInputElement
+        this.descriptionInputElement.value = this.task.description        
         this.deadlineInputElement = document.getElementById('deadlineEdit') as HTMLInputElement
+        this.deadlineInputElement.value = this.task.deadline
 
-        console.log('new task edit instance')
         this.configure();
         this.renderContent();
     
     }
 
     configure() {
-        this.showModal()
-        this.cancelBtn()
-        this.outsideClick()
+        
         this.modal.addEventListener('submit', this.editHandler)
     }
 
-    renderContent() {}
+    renderContent() {
+        this.showModal()
+        this.cancelBtn()
+        this.outsideClick()
+    }
 
     
     @autobind
@@ -401,7 +420,13 @@ class TaskEdit extends Component<HTMLDListElement, HTMLFormElement> {    private
     private editHandler(event: Event) {
         event.preventDefault(); // Prevent default form submission behavior
         const userInput = (task as TaskInput).gatherUserInput(this.titleInputElement.value, this.descriptionInputElement.value, this.deadlineInputElement.value); // Access gatherUserInput from TaskInput     
-        console.log(userInput)   
+        
+        if (Array.isArray(userInput)) {
+            const [enteredTitle, description, deadline] = userInput
+            taskState.updateTask(this.task.id, enteredTitle, description, deadline)
+            this.closeModal()
+        }
+        
     }
 
     @autobind

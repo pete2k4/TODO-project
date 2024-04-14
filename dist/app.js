@@ -46,6 +46,18 @@ class TaskState extends State {
             listenerFn(this.tasks.slice());
         }
     }
+    updateTask(id, title, description, deadline) {
+        const newTitle = title;
+        const newDescription = description;
+        const newDeadline = deadline;
+        const task = this.tasks.find(task => task.id === id);
+        task.title = newTitle;
+        task.description = newDescription;
+        task.deadline = newDeadline;
+        for (const listenerFn of this.listeners) {
+            listenerFn(this.tasks.slice());
+        }
+    }
     updateTaskStatus(taskId, newStatus) {
         const taskToUpdate = this.tasks.find(task => task.id === taskId);
         if (taskToUpdate) {
@@ -236,19 +248,22 @@ class TaskEdit extends Component {
         this.modal = document.getElementById('edit-modal');
         this.backdrop = document.getElementById('backdrop');
         this.titleInputElement = document.getElementById('titleEdit');
+        this.titleInputElement.value = this.task.title;
         this.descriptionInputElement = document.getElementById('descriptionEdit');
+        this.descriptionInputElement.value = this.task.description;
         this.deadlineInputElement = document.getElementById('deadlineEdit');
-        console.log('new task edit instance');
+        this.deadlineInputElement.value = this.task.deadline;
         this.configure();
         this.renderContent();
     }
     configure() {
+        this.modal.addEventListener('submit', this.editHandler);
+    }
+    renderContent() {
         this.showModal();
         this.cancelBtn();
         this.outsideClick();
-        this.modal.addEventListener('submit', this.editHandler);
     }
-    renderContent() { }
     showBackdrop() {
         if (!this.backdrop.classList.contains('visible')) {
             this.backdrop.classList.add('visible');
@@ -268,7 +283,11 @@ class TaskEdit extends Component {
     editHandler(event) {
         event.preventDefault();
         const userInput = task.gatherUserInput(this.titleInputElement.value, this.descriptionInputElement.value, this.deadlineInputElement.value);
-        console.log(userInput);
+        if (Array.isArray(userInput)) {
+            const [enteredTitle, description, deadline] = userInput;
+            taskState.updateTask(this.task.id, enteredTitle, description, deadline);
+            this.closeModal();
+        }
     }
     closeModal() {
         if (this.modal.classList.contains('visible')) {
