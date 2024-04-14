@@ -189,10 +189,7 @@ class TaskInput extends Component {
         this.descriptionInputElement.value = '';
         this.deadlineInputElement.value = '';
     }
-    gatherUserInput() {
-        const enteredTitle = this.titleInputElement.value;
-        const enteredDescription = this.descriptionInputElement.value;
-        const enteredDeadline = this.deadlineInputElement.value;
+    gatherUserInput(enteredTitle, enteredDescription, enteredDeadline) {
         const titleValidatable = {
             value: enteredTitle,
             required: true,
@@ -218,7 +215,7 @@ class TaskInput extends Component {
     }
     submitHandler(event) {
         event.preventDefault();
-        const userInput = this.gatherUserInput();
+        const userInput = this.gatherUserInput(this.titleInputElement.value, this.descriptionInputElement.value, this.deadlineInputElement.value);
         if (Array.isArray(userInput)) {
             const [enteredTitle, description, deadline] = userInput;
             taskState.addTask(enteredTitle, description, deadline);
@@ -232,14 +229,15 @@ class TaskInput extends Component {
 __decorate([
     autobind
 ], TaskInput.prototype, "submitHandler", null);
-class TaskEdit {
+class TaskEdit extends Component {
     constructor(task) {
+        super('edit-task', 'app', false);
         this.task = task;
         this.modal = document.getElementById('edit-modal');
         this.backdrop = document.getElementById('backdrop');
-        this.titleEditInputElement = document.getElementById('titleEdit');
-        this.descriptionEditInputElement = document.getElementById('descriptionEdit');
-        this.deadlineEditInputElement = document.getElementById('deadlineEdit');
+        this.titleInputElement = document.getElementById('titleEdit');
+        this.descriptionInputElement = document.getElementById('descriptionEdit');
+        this.deadlineInputElement = document.getElementById('deadlineEdit');
         console.log('new task edit instance');
         this.configure();
         this.renderContent();
@@ -251,23 +249,34 @@ class TaskEdit {
         this.modal.addEventListener('submit', this.editHandler);
     }
     renderContent() { }
-    toggleBackdrop() {
-        this.backdrop.classList.toggle('visible');
+    showBackdrop() {
+        if (!this.backdrop.classList.contains('visible')) {
+            this.backdrop.classList.add('visible');
+        }
+    }
+    closeBackdrop() {
+        if (this.backdrop.classList.contains('visible')) {
+            this.backdrop.classList.remove('visible');
+        }
     }
     showModal() {
         if (!this.modal.classList.contains('visible')) {
             this.modal.classList.add('visible');
-            this.toggleBackdrop();
+            this.showBackdrop();
         }
     }
     editHandler(event) {
         event.preventDefault();
+        const userInput = task.gatherUserInput(this.titleInputElement.value, this.descriptionInputElement.value, this.deadlineInputElement.value);
+        console.log(userInput);
     }
     closeModal() {
         if (this.modal.classList.contains('visible')) {
-            this.modal.classList.remove('visible');
-            this.toggleBackdrop();
+            this.modal.remove();
+            const cancel = document.getElementById('cancel-edit');
+            cancel === null || cancel === void 0 ? void 0 : cancel.removeEventListener('click', this.closeModal);
         }
+        this.closeBackdrop();
     }
     cancelBtn() {
         const cancel = document.getElementById('cancel-edit');
@@ -279,7 +288,10 @@ class TaskEdit {
 }
 __decorate([
     autobind
-], TaskEdit.prototype, "toggleBackdrop", null);
+], TaskEdit.prototype, "showBackdrop", null);
+__decorate([
+    autobind
+], TaskEdit.prototype, "closeBackdrop", null);
 __decorate([
     autobind
 ], TaskEdit.prototype, "editHandler", null);

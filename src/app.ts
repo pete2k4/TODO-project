@@ -284,10 +284,10 @@ class TaskInput extends Component<HTMLDivElement, HTMLFormElement>{
         this.deadlineInputElement.value = ''
     }
     //ori returneaza touple ori nimic in caz de nu e validat
-    public gatherUserInput(): [string, string, string] | void {
-        const enteredTitle = this.titleInputElement.value
-        const enteredDescription = this.descriptionInputElement.value
-        const enteredDeadline = this.deadlineInputElement.value
+    public gatherUserInput(enteredTitle: string, enteredDescription: string, enteredDeadline: string): [string, string, string] | void {
+        //const enteredTitle = this.titleInputElement.value
+        //const enteredDescription = this.descriptionInputElement.value
+        //const enteredDeadline = this.deadlineInputElement.value
 
         const titleValidatable: Validatable = {
             value: enteredTitle,
@@ -323,7 +323,7 @@ class TaskInput extends Component<HTMLDivElement, HTMLFormElement>{
     @autobind
     private submitHandler(event: Event) {
         event.preventDefault()//previne reload-ul la pagina
-        const userInput = this.gatherUserInput()
+        const userInput = this.gatherUserInput(this.titleInputElement.value, this.descriptionInputElement.value, this.deadlineInputElement.value,)
         if (Array.isArray(userInput)) {
             const [enteredTitle, description, deadline] = userInput
             taskState.addTask(enteredTitle, description, deadline)
@@ -337,24 +337,24 @@ class TaskInput extends Component<HTMLDivElement, HTMLFormElement>{
 
 }
 
-class TaskEdit {
-    private task: Task;
+class TaskEdit extends Component<HTMLDListElement, HTMLFormElement> {    private task: Task;
     private modal: HTMLDivElement;
     private backdrop: HTMLDivElement;
-    titleEditInputElement: HTMLInputElement
-    descriptionEditInputElement: HTMLInputElement
-    deadlineEditInputElement: HTMLInputElement
+
+    titleInputElement: HTMLInputElement
+    descriptionInputElement: HTMLInputElement
+    deadlineInputElement: HTMLInputElement
 
 
     constructor(task: Task) {
-        //super('edit-task', 'app', false);
+        super('edit-task', 'app', false);
         this.task = task;
         this.modal = document.getElementById('edit-modal') as HTMLDivElement;
         this.backdrop = document.getElementById('backdrop') as HTMLDivElement;
         
-        this.titleEditInputElement = document.getElementById('titleEdit') as HTMLInputElement
-        this.descriptionEditInputElement = document.getElementById('descriptionEdit') as HTMLInputElement
-        this.deadlineEditInputElement = document.getElementById('deadlineEdit') as HTMLInputElement
+        this.titleInputElement = document.getElementById('titleEdit') as HTMLInputElement
+        this.descriptionInputElement = document.getElementById('descriptionEdit') as HTMLInputElement
+        this.deadlineInputElement = document.getElementById('deadlineEdit') as HTMLInputElement
 
         console.log('new task edit instance')
         this.configure();
@@ -373,43 +373,48 @@ class TaskEdit {
 
     
     @autobind
-    private toggleBackdrop() {
-        this.backdrop!.classList.toggle('visible')
+    private showBackdrop() {
+        if (!this.backdrop!.classList.contains('visible')){ 
+            this.backdrop!.classList.add('visible')
+        }
         
     }
 
-    // @autobind
-    // public toggleModal() {
-    //     this.modal.classList.toggle('visible');
-    //     this.toggleBackdrop();
-        
-    // }
+    @autobind
+    private closeBackdrop() {
+        if (this.backdrop!.classList.contains('visible')){ 
+            this.backdrop!.classList.remove('visible')
+        }
+    }
 
     public showModal() {
         //messy implementation
         if (!this.modal.classList.contains('visible')) {
             this.modal.classList.add('visible')
-            this.toggleBackdrop()
+            this.showBackdrop()
         }
-        //this.outsideClick()
     }
 
     
 
     @autobind
     private editHandler(event: Event) {
-        //data processing
         event.preventDefault(); // Prevent default form submission behavior
-        
+        const userInput = (task as TaskInput).gatherUserInput(this.titleInputElement.value, this.descriptionInputElement.value, this.deadlineInputElement.value); // Access gatherUserInput from TaskInput     
+        console.log(userInput)   
     }
 
     @autobind
     public closeModal() {
         //messy implementation
         if (this.modal.classList.contains('visible')) {
-            this.modal.classList.remove('visible')
-            this.toggleBackdrop()
+            this.modal.remove();
+            const cancel = document.getElementById('cancel-edit');
+            cancel?.removeEventListener('click', this.closeModal);
+
         }
+        this.closeBackdrop();
+
     }
 
     private cancelBtn() {
