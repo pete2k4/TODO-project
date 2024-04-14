@@ -116,12 +116,7 @@ class TaskItem extends Component {
         editBtn.addEventListener('click', this.editClickHandler);
     }
     editClickHandler() {
-        if (!this.taskEdit) {
-            this.taskEdit = new TaskEdit(this.task);
-        }
-        else {
-            this.taskEdit.toggleModal();
-        }
+        this.taskEdit = new TaskEdit(this.task);
     }
     checkboxChangeHandler(event) {
         const checkbox = event.target;
@@ -250,7 +245,7 @@ class TaskEdit {
         this.renderContent();
     }
     configure() {
-        this.toggleModal();
+        this.showModal();
         this.cancelBtn();
         this.outsideClick();
         this.modal.addEventListener('submit', this.editHandler);
@@ -258,10 +253,6 @@ class TaskEdit {
     renderContent() { }
     toggleBackdrop() {
         this.backdrop.classList.toggle('visible');
-    }
-    toggleModal() {
-        this.modal.classList.toggle('visible');
-        this.toggleBackdrop();
     }
     showModal() {
         if (!this.modal.classList.contains('visible')) {
@@ -280,18 +271,15 @@ class TaskEdit {
     }
     cancelBtn() {
         const cancel = document.getElementById('cancel-edit');
-        cancel.addEventListener('click', this.toggleModal);
+        cancel.addEventListener('click', this.closeModal);
     }
     outsideClick() {
-        this.backdrop.addEventListener('click', this.toggleModal);
+        this.backdrop.addEventListener('click', this.closeModal);
     }
 }
 __decorate([
     autobind
 ], TaskEdit.prototype, "toggleBackdrop", null);
-__decorate([
-    autobind
-], TaskEdit.prototype, "toggleModal", null);
 __decorate([
     autobind
 ], TaskEdit.prototype, "editHandler", null);

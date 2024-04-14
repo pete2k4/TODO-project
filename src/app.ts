@@ -176,13 +176,7 @@ abstract class Component<T extends HTMLElement, U extends HTMLElement> {
 
     @autobind
     private editClickHandler() {
-        if (!this.taskEdit) {
-            // If not, create a new TaskEdit instance
-            this.taskEdit = new TaskEdit(this.task);
-        } else {
-            // If it already exists, just toggle its visibility
-            this.taskEdit.toggleModal()
-        }
+        this.taskEdit = new TaskEdit(this.task);
 
     }
 
@@ -369,7 +363,7 @@ class TaskEdit {
     }
 
     configure() {
-        this.toggleModal()
+        this.showModal()
         this.cancelBtn()
         this.outsideClick()
         this.modal.addEventListener('submit', this.editHandler)
@@ -384,14 +378,14 @@ class TaskEdit {
         
     }
 
-    @autobind
-    public toggleModal() {
-        this.modal.classList.toggle('visible');
-        this.toggleBackdrop();
+    // @autobind
+    // public toggleModal() {
+    //     this.modal.classList.toggle('visible');
+    //     this.toggleBackdrop();
         
-    }
+    // }
 
-    private showModal() {
+    public showModal() {
         //messy implementation
         if (!this.modal.classList.contains('visible')) {
             this.modal.classList.add('visible')
@@ -420,12 +414,12 @@ class TaskEdit {
 
     private cancelBtn() {
         const cancel = document.getElementById('cancel-edit')
-        cancel!.addEventListener('click', this.toggleModal)
+        cancel!.addEventListener('click', this.closeModal)
     }
 
     @autobind
     private outsideClick() {
-        this.backdrop.addEventListener('click', this.toggleModal)
+        this.backdrop.addEventListener('click', this.closeModal)
 
     }
 
