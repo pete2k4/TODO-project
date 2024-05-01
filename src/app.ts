@@ -64,6 +64,13 @@ class TaskState extends State<Task> {
         }
     }
 
+    deleteTask(id: string) {
+        this.tasks.splice(this.tasks.findIndex((element) => element.id === id), 1)
+        for(const listenerFn of this.listeners) {
+            listenerFn(this.tasks.slice())
+        }
+    }
+
     updateTaskStatus(taskId: string, newStatus: TaskStatus) {
         const taskToUpdate = this.tasks.find(task => task.id === taskId);
         if (taskToUpdate) {
@@ -186,7 +193,13 @@ abstract class Component<T extends HTMLElement, U extends HTMLElement> {
 
         const editBtn = this.element.querySelector('#edit') as HTMLButtonElement;
         editBtn.addEventListener('click', this.editClickHandler);
-        
+        const deleteBtn = this.element.querySelector('#delete') as HTMLButtonElement
+        deleteBtn.addEventListener('click', this.deleteItem)
+    }
+
+    @autobind
+    private deleteItem() {
+        taskState.deleteTask(this.task.id)
     }
 
     @autobind
@@ -352,7 +365,8 @@ class TaskInput extends Component<HTMLDivElement, HTMLFormElement>{
 
 }
 
-class TaskEdit extends Component<HTMLDListElement, HTMLFormElement> {    private task: Task;
+class TaskEdit extends Component<HTMLDListElement, HTMLFormElement> {    
+    private task: Task;
     private modal: HTMLDivElement;
     private backdrop: HTMLDivElement;
 

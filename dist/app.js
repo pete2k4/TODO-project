@@ -58,6 +58,12 @@ class TaskState extends State {
             listenerFn(this.tasks.slice());
         }
     }
+    deleteTask(id) {
+        this.tasks.splice(this.tasks.findIndex((element) => element.id === id), 1);
+        for (const listenerFn of this.listeners) {
+            listenerFn(this.tasks.slice());
+        }
+    }
     updateTaskStatus(taskId, newStatus) {
         const taskToUpdate = this.tasks.find(task => task.id === taskId);
         if (taskToUpdate) {
@@ -126,6 +132,11 @@ class TaskItem extends Component {
         checkbox.addEventListener('change', this.checkboxChangeHandler);
         const editBtn = this.element.querySelector('#edit');
         editBtn.addEventListener('click', this.editClickHandler);
+        const deleteBtn = this.element.querySelector('#delete');
+        deleteBtn.addEventListener('click', this.deleteItem);
+    }
+    deleteItem() {
+        taskState.deleteTask(this.task.id);
     }
     editClickHandler() {
         this.taskEdit = new TaskEdit(this.task);
@@ -147,6 +158,9 @@ class TaskItem extends Component {
         checkbox.checked = this.task.status === TaskStatus.Finished;
     }
 }
+__decorate([
+    autobind
+], TaskItem.prototype, "deleteItem", null);
 __decorate([
     autobind
 ], TaskItem.prototype, "editClickHandler", null);
