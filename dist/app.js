@@ -81,12 +81,12 @@ function validate(validatableInput) {
         isValid = isValid && validatableInput.value.toString().trim().length !== 0;
     }
     if (validatableInput.minLength != null && typeof validatableInput.value === 'string') {
-        isValid = isValid && validatableInput.value.length > validatableInput.minLength;
+        isValid = isValid && validatableInput.value.length >= validatableInput.minLength;
     }
     if (validatableInput.maxLength != null && typeof validatableInput.value === 'string') {
-        isValid = isValid && validatableInput.value.length < validatableInput.maxLength;
+        isValid = isValid && validatableInput.value.length <= validatableInput.maxLength;
     }
-    if (validatableInput.minDate != null && typeof validatableInput.value === 'string') {
+    if (validatableInput.minDate != null && validatableInput.value !== "") {
         const inputDate = new Date(validatableInput.value);
         const currentDate = new Date(validatableInput.minDate);
         isValid = isValid && inputDate > currentDate;
@@ -153,7 +153,9 @@ class TaskItem extends Component {
     renderContent() {
         this.element.querySelector('#title').textContent = this.task.title;
         this.element.querySelector('#description').textContent = this.task.description;
-        this.element.querySelector('#deadline').textContent = "Must be done until: " + new Date(this.task.deadline);
+        this.task.deadline
+            ? this.element.querySelector('#deadline').textContent = "Must be done until: " + new Date(this.task.deadline)
+            : this.element.querySelector('#deadline').textContent = "";
         const checkbox = this.element.querySelector('#checkbox');
         checkbox.checked = this.task.status === TaskStatus.Finished;
     }
@@ -219,11 +221,12 @@ class TaskInput extends Component {
         const titleValidatable = {
             value: enteredTitle,
             required: true,
+            minLength: 1,
         };
         const descriptionValidatable = {
             value: enteredDescription,
             required: false,
-            minLength: 2
+            minLength: 0
         };
         const deadlineValidatable = {
             value: enteredDeadline,
@@ -234,6 +237,7 @@ class TaskInput extends Component {
             !validate(descriptionValidatable) ||
             !validate(deadlineValidatable)) {
             alert('Invalid data!');
+            console.log(deadlineValidatable.value);
         }
         else {
             return [enteredTitle, enteredDescription, enteredDeadline];
