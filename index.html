@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
@@ -11,33 +12,43 @@
   <body>
 
     <template id="task-input">
-      <form>
-        <div class="form-control">
-          <label for="title">Title</label>
-          <input type="text" id="title" />
-        </div>
-        <div class="form-control">
-          <label for="description">Description</label>
-          <textarea id="description" rows="3"></textarea>
-        </div>
-        <div class="form-control">
-          <label for="deadline">Deadline</label>
-          <input type="datetime-local" id="deadline"/>
-        </div>
-        <button type="submit">ADD TASK</button>
-      </form>
-    </template>
+      <form class="container-fluid ">
+          <div class="row">
+            <div class="col-sm-4 mx-auto">
+              <input type="text" class="form-control" id="title" placeholder="What do you want TODO? (40 characters)">
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-sm-4 mx-auto">
+              <label for="description">Description*</label>
+              <textarea class="form-control" id="description" placeholder="(150 characters)" rows="3"></textarea>
+            </div>
+          </div>
 
+          <div class="row">
+            <div class="col-sm-2 offset-sm-4" >
+              <label for="deadline">Deadline*</label>
+              <input type="datetime-local" class="form-control" id="deadline">
+            </div> 
+            <div class="col-sm-4" style="margin-top: 28px;">
+              <button type="submit" class="btn btn-primary">ADD TASK</button>
+            </div>   
+          </div>
+          
+      </form>
+  </template>
 
     <template id="single-task">  
       <li>
         <form>
           <input type="checkbox" id="checkbox">
-          <h2 for="checkbox" id="title"></h2>
-          <button id="edit" type="button">EDIT</button>
-          <button type="button" id="delete">DELETE</button>
+          <h5 for="checkbox" id="title"></h5>
+          
           <label id="description"></label>
           <label id="deadline"></label>
+          <br>
+          <button id="edit" type="button" class="btn btn-info">EDIT</button>
+          <button type="button" id="delete" class="btn btn-danger">DELETE</button>
         </form>
         
       </li>
@@ -45,32 +56,53 @@
     
 
     <template id="task-list">
-      <section class="tasks">
-        <header id="task-header">
-          <h2></h2>
-        </header>
-        <ul></ul>
-      </section>
+      <div class="col-sm-4 mx-auto">
+        <section class="tasks">
+          <header id="task-header">
+            <h2></h2>
+          </header>
+          <ul></ul>
+        </section>
+      </div>
     </template>
 
     <template id="edit-task">
+    <div class="container">  
       <form class="modal" id="edit-modal">
         <div class="modal__content">
-          <label for="title">Title</label>
-          <input type="text" name="title" id="titleEdit" />
-          <label for="description">Description</label>
-          <input type="text" name="description" id="descriptionEdit" />
-          <label for="deadline">Deadline</label>
-          <input type="datetime-local" id="deadlineEdit" name="deadline"/>
+
+
+          <div class="row">
+            <div class="col-sm-6 mx-auto">
+              <label for="title">Title*</label>
+              <input type="text" class="form-control" id="titleEdit" placeholder="What do you want TODO? (40 characters)">
+            </div>
+          </div>
+          
+
+          <div class="row">
+            <div class="col-sm-6 mx-auto">
+              <label for="description">Description*</label>
+              <textarea class="form-control" id="descriptionEdit" placeholder="(150 characters)" rows="3"></textarea>
+            </div>
+          </div>
+          
+
+          <div class="row">
+            <div class="col-sm-4 mx-auto" >
+              <label for="deadline">Deadline*</label>
+              <input type="datetime-local" class="form-control" id="deadlineEdit">
+            </div> 
+            
+          </div>
         </div>
         <div class="modal__actions">
-          <button id="cancel-edit" class="cancel">Cancel</button>
-          <button id="confirm-edit" class="confirm" type="submit">Confirm edit</button>
+          <button id="cancel-edit" class="btn btn-danger" type="button">Cancel</button>
+          <button id="confirm-edit" class="btn btn-success" type="submit">Confirm edit</button>
         </div>
       </form>
+    </div>
     </template>
-
-
         
     
     

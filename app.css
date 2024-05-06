@@ -1,42 +1,26 @@
-/* Reset default styles */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-/* Body styles */
 body {
   font-family: Arial, sans-serif;
   background-color: #f4f4f4;
   padding: 20px;
 }
 
-/* Form styles */
 .form-control {
   margin-bottom: 20px;
 }
 
 label {
-  display: block;
+ display: block;
   font-weight: bold;
   margin-bottom: 5px;
 }
 
-h2[for="checkbox"] {
+h5[for="checkbox"] {
   display: inline;
   font-weight: bold;
   margin-bottom: 5px;
+  word-wrap: break-word;
 }
 
-input[type="text"],
-textarea {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  font-size: 16px;
-}
 
 input[type="number"] {
   width: 100%;
@@ -46,50 +30,41 @@ input[type="number"] {
   font-size: 16px;
 }
 
-/* Style for the title input */
-#title {
-  width: 60%; /* Adjust the width as needed */
-  margin: 0 ; /* Center the input */
+#description {
+  max-height: 300px;
 }
 
-button[type="submit"] {
-  background-color: #007bff;
-  color: #fff;
-  border: none;
-  border-radius: 5px;
-  padding: 10px 20px;
-  cursor: pointer;
-  font-size: 16px;
-}
-
-button[type="submit"]:hover {
-  background-color: #0056b3;
-}
 
 #task-header {
   margin-bottom: 5px
 }
 
-input:checked + h2 {
+input:checked + h5 {
   text-decoration: line-through;
   text-decoration-thickness: 2.1px;
 }
 
 li {
-  background-color: #ffffff; /* White background */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Little shadow */
-  padding: 15px; /* Adjust padding as needed */
-  margin-bottom: 10px; /* Space between list items */
-  border-radius: 8px; /* Rounded corners */
-  transition: background-color 0.3s ease; /* Smooth transition for background color */
+  background-color: #ffffff; 
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); 
+  padding: 15px; 
+  margin-bottom: 10px; 
+  border-radius: 8px; 
+  transition: background-color 0.3s ease; 
 }
 
 li:hover {
-  background-color: #f0f0f0; /* Slight shading on hover */
+  background-color: #f0f0f0;
+}
+
+li label {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 ul {
-  list-style-type: none; /* Removes bullet points */
+  list-style-type: none;
+  padding: 0;
 }
 
 
@@ -98,16 +73,24 @@ ul {
   z-index: 100;
   background: white;
   border-radius: 10px;
-  width: 80%;
-  top: 30vh;
-  left: 10%;
+  width: 60%;
+  height: 60%;
+  top: 20%;
+  left: 20%;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.26);
   display: none;
+  overflow: hidden; /* Prevents content from slipping out */
+  display: flex;
+  justify-content: center; /* Center horizontally */
+  align-items: center; /* Center vertically */
 }
+
+
 
 .modal.visible {
   display: block;
   animation: fade-slide-in 0.3s ease-out forwards;
+  
 }
 
 .modal .modal__title {
@@ -121,6 +104,11 @@ ul {
 
 .modal .modal__content {
   padding: 1rem;
+}
+
+.modal .modal__content textarea{
+  resize: none;
+
 }
 
 .modal .modal__actions {
@@ -138,16 +126,6 @@ ul {
   text-align: center;
 }
 
-.cancel {
-  background-color: #dc3545; /* Red color for cancel button */
-  color: #fff; /* White text color */
-  margin-right: 10px; /* Add margin to separate buttons */
-}
-
-.confirm {
-  background-color: #007bff; /* Blue color for confirm button */
-  color: #fff; /* White text color */
-}
 
 #backdrop {
   position: fixed;

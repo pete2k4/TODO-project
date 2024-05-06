@@ -222,11 +222,13 @@ class TaskInput extends Component {
             value: enteredTitle,
             required: true,
             minLength: 1,
+            maxLength: 40
         };
         const descriptionValidatable = {
             value: enteredDescription,
             required: false,
-            minLength: 0
+            minLength: 0,
+            maxLength: 150,
         };
         const deadlineValidatable = {
             value: enteredDeadline,

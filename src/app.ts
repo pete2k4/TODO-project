@@ -179,12 +179,12 @@ abstract class Component<T extends HTMLElement, U extends HTMLElement> {
     private taskEdit: TaskEdit | null = null
   
     constructor(hostId: string, task: Task) {
-      super('single-task', hostId, false, task.id)
+        super('single-task', hostId, false, task.id)
 
-      this.task = task
-  
-      this.configure()
-      this.renderContent()
+        this.task = task
+    
+        this.configure()
+        this.renderContent()
     }
   
     configure() {
@@ -193,6 +193,7 @@ abstract class Component<T extends HTMLElement, U extends HTMLElement> {
 
         const editBtn = this.element.querySelector('#edit') as HTMLButtonElement;
         editBtn.addEventListener('click', this.editClickHandler);
+
         const deleteBtn = this.element.querySelector('#delete') as HTMLButtonElement
         deleteBtn.addEventListener('click', this.deleteItem)
     }
@@ -322,12 +323,14 @@ class TaskInput extends Component<HTMLDivElement, HTMLFormElement>{
             value: enteredTitle,
             required: true,
             minLength: 1,
+            maxLength: 40
         }
 
         const descriptionValidatable: Validatable = {
             value: enteredDescription,
             required: false,
-            minLength: 0
+            minLength: 0,
+            maxLength: 150,
         }
 
         const deadlineValidatable: Validatable = {
